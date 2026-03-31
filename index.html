@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#748C6B">
+    <meta name="description" content="Get a free cleaning quote from Humble Hands in the Niagara Region">
+    
+    <title>Free Quote — Humble Hands</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Apple Touch Icon (for iOS home screen) -->
+    <link rel="apple-touch-icon" href="images/icon-192.png">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ============================================ -->
+    <!-- PROGRESS BAR -->
+    <!-- ============================================ -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- WELCOME SCREEN -->
+    <!-- ============================================ -->
+    <div class="screen active" id="screen-welcome">
+        <div class="card">
+            <img src="images/logo.png" alt="Humble Hands Logo" class="logo">
+            <h1>Get Your Free Cleaning Quote</h1>
+            <p>Answer a few quick questions and we'll give you an instant estimate. Takes less than 2 minutes!</p>
+            <button class="btn-primary" onclick="startQuiz()">Let's Go →</button>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- QUESTION 1: Area -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen-q1">
+        <div class="card">
+            <p class="question-number">Question 1 of 6</p>
+            <h2>What area are you in?</h2>
+            <div class="options-grid">
+                <button class="btn-option" onclick="selectAnswer('area', 'St. Catharines', this)">St. Catharines</button>
+                <button class="btn-option" onclick="selectAnswer('area', 'Niagara Falls', this)">Niagara Falls</button>
+                <button class="btn-option" onclick="selectAnswer('area', 'Niagara-on-the-Lake', this)">Niagara-on-the-Lake</button>
+                <button class="btn-option" onclick="selectAnswer('area', 'Welland', this)">Welland</button>
+                <button class="btn-option" onclick="selectAnswer('area', 'Thorold', this)">Thorold</button>
+                <button class="btn-option" onclick="selectAnswer('area', 'Grimsby', this)">Grimsby</button>
+                <button class="btn-option" onclick="selectAnswer('area', 'Lincoln / Beamsville', this)">Lincoln / Beamsville</button>
+                <button class="btn-option" onclick="selectAnswer('area', 'Fort Erie', this)">Fort Erie</button>
+                <button class="btn-option" onclick="selectAnswer('area', 'Port Colborne', this)">Port Colborne</button>
+                <button class="btn-option" onclick="selectAnswer('area', 'Other', this)">Other</button>
+            </div>
+            <button class="btn-next hidden" id="next-q1" onclick="goToScreen('screen-q2', 2)">Next →</button>
+        </div>
+    </div>
+
+        <!-- ============================================ -->
+    <!-- QUESTION 2: Service Type -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen-q2">
+        <div class="card">
+            <p class="question-number">Question 2 of 6</p>
+            <h2>What type of service do you need?</h2>
+            <div class="options-grid">
+                <button class="btn-option" onclick="selectAnswer('serviceType', 'Standard Clean', this)">
+                    <strong>Standard Clean</strong>
+                    <span class="option-desc">Regular upkeep — dusting, vacuuming, mopping, kitchens & bathrooms</span>
+                </button>
+                <button class="btn-option" onclick="selectAnswer('serviceType', 'Deep Clean', this)">
+                    <strong>Deep Clean</strong>
+                    <span class="option-desc">Top to bottom detailed cleaning — baseboards, vents, appliances & more</span>
+                </button>
+                <button class="btn-option" onclick="selectAnswer('serviceType', 'Move-In / Move-Out', this)">
+                    <strong>Move-In / Move-Out</strong>
+                    <span class="option-desc">Every corner, inside cabinets & drawers, full detail clean</span>
+                </button>
+                <button class="btn-option" onclick="selectAnswer('serviceType', 'Organization', this)">
+                    <strong>Organization</strong>
+                    <span class="option-desc">Decluttering, sorting, and customized organization systems</span>
+                </button>
+                <button class="btn-option" onclick="selectAnswer('serviceType', 'Not Sure', this)">
+                    <strong>Not Sure</strong>
+                    <span class="option-desc">No worries — we'll help you figure it out</span>
+                </button>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn-back" onclick="goToScreen('screen-q1', 1)">← Back</button>
+                <button class="btn-next hidden" id="next-q2" onclick="goToScreen('screen-q3', 3)">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- QUESTION 3: Bedrooms -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen-q3">
+        <div class="card">
+            <p class="question-number">Question 3 of 6</p>
+            <h2>How many bedrooms?</h2>
+            <div class="options-grid">
+                <button class="btn-option" onclick="selectAnswer('bedrooms', '1', this)">1</button>
+                <button class="btn-option" onclick="selectAnswer('bedrooms', '2', this)">2</button>
+                <button class="btn-option" onclick="selectAnswer('bedrooms', '3', this)">3</button>
+                <button class="btn-option" onclick="selectAnswer('bedrooms', '4', this)">4</button>
+                <button class="btn-option" onclick="selectAnswer('bedrooms', '5+', this)">5+</button>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn-back" onclick="goToScreen('screen-q2', 2)">← Back</button>
+                <button class="btn-next hidden" id="next-q3" onclick="goToScreen('screen-q4', 4)">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- QUESTION 4: Bathrooms -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen-q4">
+        <div class="card">
+            <p class="question-number">Question 4 of 6</p>
+            <h2>How many bathrooms?</h2>
+            <div class="options-grid">
+                <button class="btn-option" onclick="selectAnswer('bathrooms', '1', this)">1</button>
+                <button class="btn-option" onclick="selectAnswer('bathrooms', '2', this)">2</button>
+                <button class="btn-option" onclick="selectAnswer('bathrooms', '3', this)">3</button>
+                <button class="btn-option" onclick="selectAnswer('bathrooms', '4+', this)">4+</button>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn-back" onclick="goToScreen('screen-q3', 3)">← Back</button>
+                <button class="btn-next hidden" id="next-q4" onclick="goToScreen('screen-q5', 5)">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- QUESTION 5: Condition -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen-q5">
+        <div class="card">
+            <p class="question-number">Question 5 of 6</p>
+            <h2>What condition is your home currently in?</h2>
+            <div class="options-grid">
+                <button class="btn-option" onclick="selectAnswer('condition', 'Well Maintained', this)">
+                    <strong>Well Maintained</strong>
+                    <span class="option-desc">Cleaned regularly, just needs a professional touch</span>
+                </button>
+                <button class="btn-option" onclick="selectAnswer('condition', 'Average', this)">
+                    <strong>Average</strong>
+                    <span class="option-desc">Some areas need attention, generally okay</span>
+                </button>
+                <button class="btn-option" onclick="selectAnswer('condition', 'Needs Work', this)">
+                    <strong>Needs Work</strong>
+                    <span class="option-desc">It's been a while — we don't judge!</span>
+                </button>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn-back" onclick="goToScreen('screen-q4', 4)">← Back</button>
+                <button class="btn-next hidden" id="next-q5" onclick="goToScreen('screen-q6', 6)">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- QUESTION 6: Frequency -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen-q6">
+        <div class="card">
+            <p class="question-number">Question 6 of 6</p>
+            <h2>How often would you like us to clean?</h2>
+            <div class="options-grid">
+                <button class="btn-option" onclick="selectAnswer('frequency', 'One-Time', this)">
+                    <strong>One-Time</strong>
+                    <span class="option-desc">Just this once</span>
+                </button>
+                <button class="btn-option" onclick="selectAnswer('frequency', 'Weekly', this)">
+                    <strong>Weekly</strong>
+                    <span class="option-desc">Save 20%</span>
+                </button>
+                <button class="btn-option" onclick="selectAnswer('frequency', 'Bi-Weekly', this)">
+                    <strong>Bi-Weekly</strong>
+                    <span class="option-desc">Save 15% — most popular!</span>
+                </button>
+                <button class="btn-option" onclick="selectAnswer('frequency', 'Monthly', this)">
+                    <strong>Monthly</strong>
+                    <span class="option-desc">Save 10%</span>
+                </button>
+                <button class="btn-option" onclick="selectAnswer('frequency', 'Not Sure', this)">
+                    <strong>Not Sure Yet</strong>
+                    <span class="option-desc">We can figure it out together</span>
+                </button>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn-back" onclick="goToScreen('screen-q5', 5)">← Back</button>
+                <button class="btn-next hidden" id="next-q6" onclick="goToScreen('screen-contact', 7)">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- CONTACT INFO SCREEN -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen-contact">
+        <div class="card">
+            <p class="question-number">Almost done!</p>
+            <h2>Where should we send your quote?</h2>
+            <p>We'll use this to follow up with your personalized estimate.</p>
+            
+            <form id="contactForm" onsubmit="submitQuote(event)">
+                <div class="form-group">
+                    <label for="name">Your Name</label>
+                    <input type="text" id="name" name="name" placeholder="e.g. Sarah Johnson" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="e.g. sarah@email.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" placeholder="e.g. 905-555-1234" required>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button type="button" class="btn-back" onclick="goToScreen('screen-q6', 6)">← Back</button>
+                    <button type="submit" class="btn-primary" id="submitBtn">Get My Estimate →</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- RESULTS SCREEN -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen-results">
+        <div class="card">
+            <div class="results-icon">✨</div>
+            <h2>Your Estimated Quote</h2>
+            
+            <div class="quote-display">
+                <p class="quote-label">Starting from</p>
+                <p class="quote-amount" id="quoteAmount">$0</p>
+                <p class="quote-note">per visit</p>
+            </div>
+            
+            <div class="quote-summary" id="quoteSummary">
+                <!-- Filled in by JavaScript -->
+            </div>
+            
+            <div class="quote-disclaimer">
+                <p>This is a rough estimate based on your answers. Your final price may vary depending on the specific condition and needs of your home. We'll be in touch within a few hours to confirm the details!</p>
+            </div>
+            
+            <a href="https://humblehands.ca" class="btn-primary" target="_blank">Visit Our Website</a>
+            
+            <div class="footer-logo">
+                <a href="https://humblehands.ca" target="_blank">
+                    <img src="images/logo.png" alt="Humble Hands" class="footer-logo-img">
+                    <p class="footer-text">humblehands.ca</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- LOADING OVERLAY -->
+    <!-- ============================================ -->
+    <div class="loading-overlay hidden" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>Calculating your quote...</p>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+
+</body>
+</html>
