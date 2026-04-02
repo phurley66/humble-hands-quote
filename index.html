@@ -43,7 +43,7 @@
     <!-- ============================================ -->
     <div class="screen" id="screen-q1">
         <div class="card">
-            <p class="question-number">Question 1 of 6</p>
+            <p class="question-number">Question 1 of 7</p>
             <h2>What area are you in?</h2>
             <div class="options-grid">
                 <button class="btn-option" onclick="selectAnswer('area', 'St. Catharines', this)">St. Catharines</button>
@@ -64,7 +64,7 @@
     <!-- ============================================ -->
     <div class="screen" id="screen-q2">
         <div class="card">
-            <p class="question-number">Question 2 of 6</p>
+            <p class="question-number">Question 2 of 7</p>
             <h2>What type of service do you need?</h2>
             <div class="options-grid">
                 <button class="btn-option" onclick="selectAnswer('serviceType', 'Standard Clean', this)">
@@ -100,7 +100,7 @@
     <!-- ============================================ -->
     <div class="screen" id="screen-q3">
         <div class="card">
-            <p class="question-number">Question 3 of 6</p>
+            <p class="question-number">Question 3 of 7</p>
             <h2>How many bedrooms?</h2>
             <div class="options-grid">
                 <button class="btn-option" onclick="selectAnswer('bedrooms', '1', this)">1</button>
@@ -121,7 +121,7 @@
     <!-- ============================================ -->
     <div class="screen" id="screen-q4">
         <div class="card">
-            <p class="question-number">Question 4 of 6</p>
+            <p class="question-number">Question 4 of 7</p>
             <h2>How many bathrooms?</h2>
             <div class="options-grid">
                 <button class="btn-option" onclick="selectAnswer('bathrooms', '1', this)">1</button>
@@ -141,7 +141,7 @@
     <!-- ============================================ -->
     <div class="screen" id="screen-q5">
         <div class="card">
-            <p class="question-number">Question 5 of 6</p>
+            <p class="question-number">Question 5 of 7</p>
             <h2>What condition is your home currently in?</h2>
             <div class="options-grid">
                 <button class="btn-option" onclick="selectAnswer('condition', 'Well Maintained', this)">
@@ -169,7 +169,7 @@
     <!-- ============================================ -->
     <div class="screen" id="screen-q6">
         <div class="card">
-            <p class="question-number">Question 6 of 6</p>
+            <p class="question-number">Question 6 of 7</p>
             <h2>How often would you like us to clean?</h2>
             <div class="options-grid">
                 <button class="btn-option" onclick="selectAnswer('frequency', 'One-Time', this)">
@@ -195,7 +195,45 @@
             </div>
             <div class="nav-buttons">
                 <button class="btn-back" onclick="goToScreen('screen-q5', 5)">← Back</button>
-                <button class="btn-next hidden" id="next-q6" onclick="goToScreen('screen-contact', 7)">Next →</button>
+<button class="btn-next hidden" id="next-q6" onclick="goToScreen('screen-q7', 7)">Next →</button>            </div>
+        </div>
+    </div>
+    
+    <!-- ============================================ -->
+    <!-- QUESTION 7: Anything Else -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen-q7">
+        <div class="card">
+            <p class="question-number">Question 7 of 7</p>
+            <h2>Anything else we should know?</h2>
+            <p style="color: #888; font-size: 0.9rem; margin-bottom: 20px;">Pets, parking, access instructions, specific areas of concern — anything at all!</p>
+            
+            <div class="form-group" style="text-align: left;">
+                <textarea 
+                    id="extraNotes" 
+                    placeholder="e.g. We have a dog named Biscuit, please use the side entrance, the master bathroom needs extra attention..."
+                    rows="5"
+                    style="
+                        width: 100%;
+                        padding: 14px 16px;
+                        border: 2px solid rgba(116, 140, 107, 0.25);
+                        border-radius: 10px;
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        font-size: 1rem;
+                        color: #4C4C4C;
+                        background-color: #FAFAF3;
+                        transition: border-color 0.2s ease;
+                        outline: none;
+                        resize: vertical;
+                    "
+                    onfocus="this.style.borderColor='#748C68'"
+                    onblur="this.style.borderColor='rgba(116, 140, 107, 0.25)'"
+                ></textarea>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-back" onclick="goToScreen('screen-q6', 6)">← Back</button>
+                <button class="btn-next" onclick="goToScreen('screen-contact', 8)">Next →</button>
             </div>
         </div>
     </div>

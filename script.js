@@ -18,14 +18,15 @@ let answers = {
     bedrooms: "",
     bathrooms: "",
     condition: "",
-    frequency: ""
+    frequency: "",
+    extraNotes: ""
 };
 
 // =============================================
 // TOTAL NUMBER OF STEPS (for progress bar)
 // Welcome + 6 questions + contact + results = 9
 // =============================================
-const TOTAL_STEPS = 9;
+const TOTAL_STEPS = 10;
 let currentStep = 0;
 
 // =============================================
@@ -200,10 +201,14 @@ function submitQuote(event) {
     // Prevent the form from refreshing the page
     event.preventDefault();
 
-    // Get the contact info from the form
+        // Get the contact info from the form
     var name = document.getElementById("name").value.trim();
     var email = document.getElementById("email").value.trim();
     var phone = document.getElementById("phone").value.trim();
+
+    // Get the extra notes (optional field)
+    var extraNotes = document.getElementById("extraNotes").value.trim();
+    answers.extraNotes = extraNotes || "None";
 
     // Basic validation
     if (!name || !email || !phone) {
@@ -224,7 +229,7 @@ function submitQuote(event) {
     var estimatedQuote = calculateQuote();
 
     // Build the data object to send to Google Sheets
-    var data = {
+       var data = {
         name: name,
         email: email,
         phone: phone,
@@ -234,6 +239,7 @@ function submitQuote(event) {
         bathrooms: answers.bathrooms,
         condition: answers.condition,
         frequency: answers.frequency,
+        extraNotes: answers.extraNotes,
         estimatedQuote: "$" + estimatedQuote + " (internal estimate — not shown to client)"
     };
 
