@@ -144,9 +144,9 @@ function calculateQuote() {
     // -----------------------------------------
         var serviceMultipliers = {
         "Standard Clean": 1.0,
-        "Deep Clean": 1.7,
-        "Move-In / Move-Out": 2.0,
-        "Organization": 1.5,
+        "Deep Clean": 1.5,
+        "Move-In / Move-Out": 1.7,
+        "Organization": 1.3,
         "Not Sure": 1.0
     };
 
@@ -219,11 +219,11 @@ function getQuoteBreakdown() {
     };
 
     // Service multipliers
-    var serviceMultipliers = {
+        var serviceMultipliers = {
         "Standard Clean": 1.0,
-        "Deep Clean": 1.7,
-        "Move-In / Move-Out": 2.0,
-        "Organization": 1.5,
+        "Deep Clean": 1.5,
+        "Move-In / Move-Out": 1.7,
+        "Organization": 1.3,
         "Not Sure": 1.0
     };
 
