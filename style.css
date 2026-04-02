@@ -341,6 +341,29 @@ p {
     margin: 24px 0;
     border: 2px solid rgba(116, 140, 107, 0.2);
 }
+.thankyou-display {
+    background-color: #FAFAF3;
+    border-radius: 16px;
+    padding: 28px 20px;
+    margin: 24px 0;
+    border: 2px solid rgba(116, 140, 107, 0.2);
+    text-align: center;
+}
+
+.thankyou-display p {
+    font-size: 1rem;
+    color: #4C4C4C;
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+.thankyou-display p:last-child {
+    margin-bottom: 0;
+}
+
+.thankyou-display strong {
+    color: #748C68;
+}
 
 .quote-label {
     font-size: 0.9rem;

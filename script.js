@@ -220,7 +220,7 @@ function submitQuote(event) {
     var loadingOverlay = document.getElementById("loadingOverlay");
     loadingOverlay.classList.remove("hidden");
 
-    // Calculate the quote
+        // Calculate the quote (for your eyes only — not shown to customer)
     var estimatedQuote = calculateQuote();
 
     // Build the data object to send to Google Sheets
@@ -234,7 +234,7 @@ function submitQuote(event) {
         bathrooms: answers.bathrooms,
         condition: answers.condition,
         frequency: answers.frequency,
-        estimatedQuote: "$" + estimatedQuote
+        estimatedQuote: "$" + estimatedQuote + " (internal estimate — not shown to client)"
     };
 
     // Send data to Google Sheets
@@ -269,33 +269,18 @@ function submitQuote(event) {
 // =============================================
 
 function showResults(quote) {
-    // Display the quote amount
-    var quoteAmountEl = document.getElementById("quoteAmount");
-    quoteAmountEl.textContent = "$" + quote;
-
-    // Build the summary
+    // Build the summary (no price shown to customer)
     var summaryEl = document.getElementById("quoteSummary");
-
-    // Frequency display text
-    var frequencyText = answers.frequency;
-    var frequencyDiscounts = {
-        "Weekly": " (20% off)",
-        "Bi-Weekly": " (15% off)",
-        "Monthly": " (10% off)"
-    };
-    if (frequencyDiscounts[answers.frequency]) {
-        frequencyText = answers.frequency + frequencyDiscounts[answers.frequency];
-    }
 
     summaryEl.innerHTML =
         "<p><span>Service</span><span>" + answers.serviceType + "</span></p>" +
         "<p><span>Bedrooms</span><span>" + answers.bedrooms + "</span></p>" +
         "<p><span>Bathrooms</span><span>" + answers.bathrooms + "</span></p>" +
         "<p><span>Condition</span><span>" + answers.condition + "</span></p>" +
-        "<p><span>Frequency</span><span>" + frequencyText + "</span></p>" +
+        "<p><span>Frequency</span><span>" + answers.frequency + "</span></p>" +
         "<p><span>Area</span><span>" + answers.area + "</span></p>";
 
-    // Navigate to results screen
+    // Navigate to thank you screen
     goToScreen("screen-results", 8);
 }
 
