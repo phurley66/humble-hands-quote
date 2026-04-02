@@ -194,6 +194,85 @@ function calculateQuote() {
 }
 
 // =============================================
+// QUOTE BREAKDOWN
+// Returns a readable text breakdown of how
+// the quote was calculated
+// =============================================
+
+function getQuoteBreakdown() {
+
+    // Base prices by bedroom
+    var basePrices = {
+        "1": 120,
+        "2": 145,
+        "3": 180,
+        "4": 230,
+        "5+": 280
+    };
+
+    // Bathroom add-ons
+    var bathroomPrices = {
+        "1": 0,
+        "2": 25,
+        "3": 50,
+        "4+": 80
+    };
+
+    // Service multipliers
+    var serviceMultipliers = {
+        "Standard Clean": 1.0,
+        "Deep Clean": 1.7,
+        "Move-In / Move-Out": 2.0,
+        "Organization": 1.5,
+        "Not Sure": 1.0
+    };
+
+    // Condition multipliers
+    var conditionMultipliers = {
+        "Well Maintained": 1.0,
+        "Average": 1.15,
+        "Needs Work": 1.35
+    };
+
+    // Frequency discounts
+    var frequencyDiscounts = {
+        "One-Time": 0,
+        "Weekly": 0.20,
+        "Bi-Weekly": 0.15,
+        "Monthly": 0.10,
+        "Not Sure": 0
+    };
+
+    // Calculate each step
+    var basePrice = basePrices[answers.bedrooms] || 180;
+    var bathroomAddon = bathroomPrices[answers.bathrooms] || 25;
+    var subtotal = basePrice + bathroomAddon;
+
+    var serviceMultiplier = serviceMultipliers[answers.serviceType] || 1.0;
+    var afterService = subtotal * serviceMultiplier;
+
+    var conditionMultiplier = conditionMultipliers[answers.condition] || 1.0;
+    var afterCondition = afterService * conditionMultiplier;
+
+    var discount = frequencyDiscounts[answers.frequency] || 0;
+    var discountAmount = afterCondition * discount;
+    var afterDiscount = afterCondition - discountAmount;
+
+    var finalQuote = Math.round(afterDiscount / 5) * 5;
+
+    // Build the readable breakdown text
+    var breakdown =
+        "Base (" + answers.bedrooms + " bed): $" + basePrice +
+        " | Bathrooms (" + answers.bathrooms + "): +$" + bathroomAddon +
+        " | Subtotal: $" + subtotal +
+        " | " + answers.serviceType + " x" + serviceMultiplier + ": $" + Math.round(afterService) +
+        " | " + answers.condition + " x" + conditionMultiplier + ": $" + Math.round(afterCondition) +
+        " | " + answers.frequency + " -" + (discount * 100) + "%: -$" + Math.round(discountAmount) +
+        " | TOTAL: $" + finalQuote;
+
+    return breakdown;
+}
+// =============================================
 // FORM SUBMISSION
 // =============================================
 
@@ -227,9 +306,10 @@ function submitQuote(event) {
 
         // Calculate the quote (for your eyes only — not shown to customer)
     var estimatedQuote = calculateQuote();
+    var quoteBreakdown = getQuoteBreakdown();
 
     // Build the data object to send to Google Sheets
-       var data = {
+        var data = {
         name: name,
         email: email,
         phone: phone,
@@ -240,6 +320,7 @@ function submitQuote(event) {
         condition: answers.condition,
         frequency: answers.frequency,
         extraNotes: answers.extraNotes,
+        quoteBreakdown: quoteBreakdown,
         estimatedQuote: "$" + estimatedQuote + " (internal estimate — not shown to client)"
     };
 
