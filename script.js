@@ -6,7 +6,7 @@
 // GOOGLE APPS SCRIPT URL
 // Replace the URL below with YOUR deployed web app URL from Step 3
 // =============================================
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxiE-g20FfOllk5PjoNNJNKx-yBGbwyVPrcBmZklSwohC2h55goIl0tvuCRIda8N_czPQ/exec ";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxiE-g20FfOllk5PjoNNJNKx-yBGbwyVPrcBmZklSwohC2h55goIl0tvuCRIda8N_czPQ/exec";
 
 // =============================================
 // ANSWER STORAGE
