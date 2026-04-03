@@ -307,7 +307,7 @@ function submitOrgQuote(event) {
         supplies:         orgAnswers.supplies,
         extraNotes:       orgAnswers.extraNotes || "None",
         quoteBreakdown:   orgBreakdown.breakdown,
-        estimatedQuote:   orgBreakdown.total + " (internal estimate — not shown to client)",
+        estimatedQuote:   orgBreakdown.total,
         preferredContact: preferredContact ? preferredContact.value : "Not specified"
     };
 
@@ -510,7 +510,7 @@ function submitQuote(event) {
         frequency:      answers.frequency,
         extraNotes:     answers.extraNotes,
         quoteBreakdown: quoteBreakdown,
-        estimatedQuote: "$" + estimatedQuote + " (internal estimate — not shown to client)"
+        estimatedQuote: "$" + estimatedQuote 
     };
 
     fetch(GOOGLE_SCRIPT_URL, {
