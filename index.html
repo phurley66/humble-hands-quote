@@ -33,7 +33,7 @@
         <div class="card">
             <img src="images/logo.png" alt="Humble Hands Logo" class="logo">
             <h1>Get Your Free Cleaning Quote</h1>
-            <p>Answer a few quick questions and we'll give you an instant estimate. Takes less than 2 minutes!</p>
+            <p>Answer a few quick questions and we'll send you a personalized estimate. Takes less than 2 minutes!</p>
             <button class="btn-primary" onclick="startQuiz()">Let's Go →</button>
         </div>
     </div>
@@ -59,7 +59,7 @@
         </div>
     </div>
 
-        <!-- ============================================ -->
+    <!-- ============================================ -->
     <!-- QUESTION 2: Service Type -->
     <!-- ============================================ -->
     <div class="screen" id="screen-q2">
@@ -90,7 +90,8 @@
             </div>
             <div class="nav-buttons">
                 <button class="btn-back" onclick="goToScreen('screen-q1', 1)">← Back</button>
-                <button class="btn-next hidden" id="next-q2" onclick="routeAfterServiceType()"">Next →</button>
+                <!-- FIXED — removed duplicate class, added button text -->
+                <button class="btn-next hidden" id="next-q2" onclick="routeAfterServiceType()">Next →</button>
             </div>
         </div>
     </div>
@@ -195,10 +196,11 @@
             </div>
             <div class="nav-buttons">
                 <button class="btn-back" onclick="goToScreen('screen-q5', 5)">← Back</button>
-<button class="btn-next hidden" id="next-q6" onclick="goToScreen('screen-q7', 7)">Next →</button>            </div>
+                <button class="btn-next hidden" id="next-q6" onclick="goToScreen('screen-q7', 7)">Next →</button>
+            </div>
         </div>
     </div>
-    
+
     <!-- ============================================ -->
     <!-- QUESTION 7: Anything Else -->
     <!-- ============================================ -->
@@ -211,7 +213,7 @@
             <div class="form-group" style="text-align: left;">
                 <textarea 
                     id="extraNotes" 
-                    placeholder="e.g. We have a dog named Biscuit, please use the side entrance, the master bathroom needs extra attention..."
+                    placeholder="e.g. We have a dog named Biscuit, please use the side entrance..."
                     rows="5"
                     style="
                         width: 100%;
@@ -239,7 +241,7 @@
     </div>
 
     <!-- ============================================ -->
-    <!-- CONTACT INFO SCREEN -->
+    <!-- CONTACT INFO SCREEN — CLEANING -->
     <!-- ============================================ -->
     <div class="screen" id="screen-contact">
         <div class="card">
@@ -252,33 +254,353 @@
                     <label for="name">Your Name</label>
                     <input type="text" id="name" name="name" placeholder="e.g. Sarah Johnson" required>
                 </div>
-                
                 <div class="form-group">
                     <label for="email">Email Address</label>
                     <input type="email" id="email" name="email" placeholder="e.g. sarah@email.com" required>
                 </div>
-                
                 <div class="form-group">
                     <label for="phone">Phone Number</label>
                     <input type="tel" id="phone" name="phone" placeholder="e.g. 905-555-1234" required>
                 </div>
-                
                 <div class="nav-buttons">
-                    <button type="button" class="btn-back" onclick="goToScreen('screen-q6', 6)">← Back</button>
+                    <button type="button" class="btn-back" onclick="goToScreen('screen-q7', 7)">← Back</button>
                     <button type="submit" class="btn-primary" id="submitBtn">Get My Estimate →</button>
                 </div>
             </form>
         </div>
     </div>
 
-       <!-- ============================================ -->
-    <!-- THANK YOU SCREEN -->
+    <!-- ============================================ -->
+    <!-- ORG SCREEN 1: Spaces -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen-org-spaces">
+        <div class="card">
+            <p class="question-number">Organization — Step 1 of 5</p>
+            <h2>Which spaces need organizing?</h2>
+            <p style="color: #888; font-size: 0.9rem; margin-bottom: 20px;">Select all that apply</p>
+
+            <div class="options-grid">
+                <label class="btn-option checkbox-option">
+                    <input type="checkbox" name="spaces" value="Pantry">
+                    🥫 Pantry
+                </label>
+                <label class="btn-option checkbox-option">
+                    <input type="checkbox" name="spaces" value="Closet">
+                    👔 Closet
+                </label>
+                <label class="btn-option checkbox-option">
+                    <input type="checkbox" name="spaces" value="Home Office">
+                    💻 Home Office
+                </label>
+                <label class="btn-option checkbox-option">
+                    <input type="checkbox" name="spaces" value="Garage">
+                    🚗 Garage
+                </label>
+                <label class="btn-option checkbox-option">
+                    <input type="checkbox" name="spaces" value="Other" id="other-checkbox"
+                        onchange="document.getElementById('other-text').style.display = this.checked ? 'block' : 'none'">
+                    ✏️ Other
+                </label>
+            </div>
+
+            <input
+                type="text"
+                id="other-text"
+                placeholder="Please describe the space..."
+                style="
+                    display: none;
+                    width: 100%;
+                    box-sizing: border-box;
+                    margin-top: 0.75rem;
+                    padding: 12px 16px;
+                    border: 2px solid rgba(116, 140, 107, 0.25);
+                    border-radius: 10px;
+                    font-family: 'Segoe UI', sans-serif;
+                    font-size: 0.95rem;
+                    color: #4C4C4C;
+                    background: #FAFAF3;
+                    outline: none;
+                "
+                onfocus="this.style.borderColor='#748C68'"
+                onblur="this.style.borderColor='rgba(116, 140, 107, 0.25)'"
+            >
+
+            <p id="spaces-error" style="
+                display: none;
+                color: #c0392b;
+                font-size: 0.85rem;
+                margin-top: 0.75rem;
+            ">Please select at least one space.</p>
+
+            <div class="nav-buttons">
+                <button class="btn-back" onclick="goToScreen('screen-q2', 2)">← Back</button>
+                <button class="btn-next" onclick="validateSpaces()">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ORG SCREEN 2: Condition -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen-org-condition">
+        <div class="card">
+            <p class="question-number">Organization — Step 2 of 5</p>
+            <h2>How would you describe the current condition?</h2>
+
+            <div class="options-grid">
+                <label class="btn-option radio-option">
+                    <input type="radio" name="org-condition" value="Just needs tidying">
+                    <strong>Just needs tidying</strong>
+                    <span class="option-desc">Mostly organized, a little shuffling needed</span>
+                </label>
+                <label class="btn-option radio-option">
+                    <input type="radio" name="org-condition" value="Pretty cluttered">
+                    <strong>Pretty cluttered</strong>
+                    <span class="option-desc">Hard to find things, needs a real sort-out</span>
+                </label>
+                <label class="btn-option radio-option">
+                    <input type="radio" name="org-condition" value="Needs significant work">
+                    <strong>Needs significant work</strong>
+                    <span class="option-desc">It's a lot — we've seen it all, no judgment!</span>
+                </label>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-back" onclick="goToScreen('screen-org-spaces', 4)">← Back</button>
+                <button class="btn-next" onclick="validateOrgCondition()">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ORG SCREEN 3: Supplies -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen-org-supplies">
+        <div class="card">
+            <p class="question-number">Organization — Step 3 of 5</p>
+            <h2>Would you like us to bring storage bins or organization supplies?</h2>
+            <p style="color: #888; font-size: 0.9rem; margin-bottom: 20px;">We can source and bring everything needed — cost added to final quote</p>
+
+            <div class="options-grid">
+                <label class="btn-option radio-option">
+                    <input type="radio" name="org-supplies" value="Yes — include supplies">
+                    <strong>Yes please</strong>
+                    <span class="option-desc">Include bins, baskets, and supplies</span>
+                </label>
+                <label class="btn-option radio-option">
+                    <input type="radio" name="org-supplies" value="No — I have my own">
+                    <strong>No thanks</strong>
+                    <span class="option-desc">I already have my own supplies</span>
+                </label>
+                <label class="btn-option radio-option">
+                    <input type="radio" name="org-supplies" value="Not sure — let's discuss">
+                    <strong>Not sure yet</strong>
+                    <span class="option-desc">Let's discuss when you reach out</span>
+                </label>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-back" onclick="goToScreen('screen-org-condition', 5)">← Back</button>
+                <button class="btn-next" onclick="validateSupplies()">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ORG SCREEN 4: Notes -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen-org-notes">
+        <div class="card">
+            <p class="question-number">Organization — Step 4 of 5</p>
+            <h2>Anything else we should know?</h2>
+            <p style="color: #888; font-size: 0.9rem; margin-bottom: 20px;">Optional — describe the space, special requests, access info, etc.</p>
+
+            <div class="form-group" style="text-align: left;">
+                <textarea
+                    id="org-notes"
+                    placeholder="e.g. My pantry has a lot of canned goods and I'd love a label system..."
+                    rows="5"
+                    style="
+                        width: 100%;
+                        padding: 14px 16px;
+                        border: 2px solid rgba(116, 140, 107, 0.25);
+                        border-radius: 10px;
+                        font-family: 'Segoe UI', sans-serif;
+                        font-size: 1rem;
+                        color: #4C4C4C;
+                        background-color: #FAFAF3;
+                        transition: border-color 0.2s ease;
+                        outline: none;
+                        resize: vertical;
+                    "
+                    onfocus="this.style.borderColor='#748C68'"
+                    onblur="this.style.borderColor='rgba(116, 140, 107, 0.25)'"
+                ></textarea>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-back" onclick="goToScreen('screen-org-supplies', 5)">← Back</button>
+                <button class="btn-next" onclick="goToOrgPhotos()">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ORG SCREEN 5: Photos -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen-org-photos">
+        <div class="card">
+            <p class="question-number">Organization — Step 5 of 5</p>
+            <h2>Got photos of the space?</h2>
+            <p style="color: #888; font-size: 0.9rem; margin-bottom: 20px;">Optional — helps us give you a more accurate quote</p>
+
+            <div
+                id="photo-drop-area"
+                onclick="document.getElementById('org-photos').click()"
+                style="
+                    border: 2px dashed rgba(116, 140, 107, 0.4);
+                    border-radius: 10px;
+                    padding: 2rem 1rem;
+                    text-align: center;
+                    cursor: pointer;
+                    background: #FAFAF3;
+                    color: #888;
+                    font-size: 0.9rem;
+                    transition: border-color 0.2s;
+                "
+                onmouseover="this.style.borderColor='#748C68'"
+                onmouseout="this.style.borderColor='rgba(116, 140, 107, 0.4)'"
+            >
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📷</div>
+                <div style="color: #748C68; font-weight: 600; margin-bottom: 0.25rem;">Tap to upload photos</div>
+                <div style="font-size: 0.8rem;">JPG, PNG, HEIC — up to 5 photos</div>
+            </div>
+
+            <input
+                type="file"
+                id="org-photos"
+                accept="image/*"
+                multiple
+                style="display: none;"
+                onchange="handlePhotoUpload(this)"
+            >
+
+            <div id="photo-preview" style="
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                margin-top: 1rem;
+            "></div>
+
+            <p id="photo-count" style="
+                font-size: 0.82rem;
+                color: #748C68;
+                margin: 0.5rem 0 0 0;
+                display: none;
+            "></p>
+
+            <div class="nav-buttons">
+                <button class="btn-back" onclick="goToScreen('screen-org-notes', 6)">← Back</button>
+                <button class="btn-next" onclick="goToOrgContact()">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ORG CONTACT SCREEN -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen-org-contact">
+        <div class="card">
+            <p class="question-number">Almost done!</p>
+            <h2>How do we reach you?</h2>
+            <p>We'll send your custom quote within a few hours.</p>
+
+            <form id="orgContactForm" onsubmit="submitOrgQuote(event)">
+                <div class="form-group">
+                    <label for="org-name">Your Name</label>
+                    <input type="text" id="org-name" placeholder="e.g. Jane Smith" required>
+                </div>
+                <div class="form-group">
+                    <label for="org-email">Email Address</label>
+                    <input type="email" id="org-email" placeholder="e.g. jane@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="org-phone">Phone Number</label>
+                    <input type="tel" id="org-phone" placeholder="e.g. 905-555-1234">
+                </div>
+
+                <div class="form-group">
+                    <label>Preferred contact method</label>
+                    <div class="options-grid" style="grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
+                        <label class="btn-option radio-option" style="padding: 0.65rem 0.5rem; font-size: 0.88rem;">
+                            <input type="radio" name="org-contact-method" value="Email">
+                            Email
+                        </label>
+                        <label class="btn-option radio-option" style="padding: 0.65rem 0.5rem; font-size: 0.88rem;">
+                            <input type="radio" name="org-contact-method" value="Phone">
+                            Phone
+                        </label>
+                        <label class="btn-option radio-option" style="padding: 0.65rem 0.5rem; font-size: 0.88rem;">
+                            <input type="radio" name="org-contact-method" value="Text">
+                            Text
+                        </label>
+                    </div>
+                </div>
+
+                <p id="org-contact-error" style="
+                    display: none;
+                    color: #c0392b;
+                    font-size: 0.85rem;
+                    margin-bottom: 0.75rem;
+                ">Please fill in your name and email at minimum.</p>
+
+                <div class="nav-buttons">
+                    <button type="button" class="btn-back" onclick="goToScreen('screen-org-photos', 7)">← Back</button>
+                    <button type="submit" class="btn-primary" id="orgSubmitBtn">Send My Quote Request →</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ORG CONFIRMATION SCREEN -->
+    <!-- ============================================ -->
+    <div class="screen" id="screen-org-confirmation">
+        <div class="card">
+            <div class="results-icon">🌿</div>
+            <h2>We've got your request!</h2>
+
+            <div class="thankyou-display">
+                <p>We'll review your details and send your custom organization quote within a few hours.</p>
+                <p>Keep an eye on your inbox — we look forward to helping you create a calmer, more functional space.</p>
+            </div>
+
+            <div class="quote-disclaimer">
+                <p>Questions in the meantime? Reach us at<br>
+                <a href="mailto:service.humblehands@gmail.com" style="color: #748C68;">service.humblehands@gmail.com</a>
+                &nbsp;·&nbsp;
+                <a href="tel:7053916736" style="color: #748C68;">(705) 391-6736</a></p>
+            </div>
+
+            <a href="https://humblehands.ca" class="btn-primary" target="_blank">Return to Our Website</a>
+
+            <div class="footer-logo">
+                <a href="https://humblehands.ca" target="_blank">
+                    <img src="images/logo.png" alt="Humble Hands" class="footer-logo-img">
+                    <p class="footer-text">humblehands.ca</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- THANK YOU SCREEN — CLEANING -->
     <!-- ============================================ -->
     <div class="screen" id="screen-results">
         <div class="card">
             <div class="results-icon">🌿</div>
             <h2>Thank You, We'll Be in Touch!</h2>
-            
+
             <div class="thankyou-display">
                 <p>We've received your request and are preparing your personalized quote.</p>
                 <p>You can expect to hear from us within <strong>a few hours</strong> during business hours.</p>
@@ -292,7 +614,7 @@
                 <p>Your quote will be tailored specifically to your home and needs. We look forward to serving you in the Niagara Region! 🌿</p>
             </div>
 
-            <a href="https://humblehands.ca" class="hero-quote-btn" target="_blank">Return to Our Website</a>
+            <a href="https://humblehands.ca" class="btn-primary" target="_blank">Return to Our Website</a>
 
             <div class="footer-logo">
                 <a href="https://humblehands.ca" target="_blank">
@@ -308,7 +630,7 @@
     <!-- ============================================ -->
     <div class="loading-overlay hidden" id="loadingOverlay">
         <div class="spinner"></div>
-        <p>Calculating your quote...</p>
+        <p>Sending your request...</p>
     </div>
 
     <!-- JavaScript -->
