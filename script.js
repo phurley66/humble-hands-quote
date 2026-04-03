@@ -307,7 +307,7 @@ function submitOrgQuote(event) {
         supplies:         orgAnswers.supplies,
         extraNotes:       orgAnswers.extraNotes || "None",
         quoteBreakdown:   orgBreakdown.breakdown,
-        estimatedQuote:   orgBreakdown.total,
+        estimatedQuote: String(orgBreakdown.total).startsWith("$") ? orgBreakdown.total : "$" + orgBreakdown.total,
         preferredContact: preferredContact ? preferredContact.value : "Not specified"
     };
 
@@ -510,7 +510,7 @@ function submitQuote(event) {
         frequency:      answers.frequency,
         extraNotes:     answers.extraNotes,
         quoteBreakdown: quoteBreakdown,
-        estimatedQuote: "$" + estimatedQuote 
+        estimatedQuote: "$" + estimatedQuote.toString() 
     };
 
     fetch(GOOGLE_SCRIPT_URL, {
