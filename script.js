@@ -4,13 +4,12 @@
 
 // =============================================
 // GOOGLE APPS SCRIPT URL
-// Replace the URL below with YOUR deployed web app URL from Step 3
 // =============================================
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxiE-g20FfOllk5PjoNNJNKx-yBGbwyVPrcBmZklSwohC2h55goIl0tvuCRIda8N_czPQ/exec";
 
 // =============================================
 // ANSWER STORAGE
-// This object stores all the user's answers
+// Stores all user answers for cleaning flow
 // =============================================
 let answers = {
     area: "",
@@ -22,9 +21,18 @@ let answers = {
     extraNotes: ""
 };
 
+// Organization answers stored separately
+let orgAnswers = {
+    area: "",
+    spaces: [],
+    spaceCount: 0,
+    condition: "",
+    supplies: "",
+    extraNotes: ""
+};
+
 // =============================================
 // TOTAL NUMBER OF STEPS (for progress bar)
-// Welcome + 6 questions + contact + results = 9
 // =============================================
 const TOTAL_STEPS = 10;
 let currentStep = 0;
@@ -38,21 +46,17 @@ function startQuiz() {
 }
 
 function goToScreen(screenId, step) {
-    // Hide all screens
     var screens = document.querySelectorAll(".screen");
     screens.forEach(function(screen) {
         screen.classList.remove("active");
     });
 
-    // Show the target screen
     var targetScreen = document.getElementById(screenId);
     targetScreen.classList.add("active");
 
-    // Update progress bar
     currentStep = step;
     updateProgressBar();
 
-    // Scroll to top (important on mobile)
     window.scrollTo(0, 0);
 }
 
@@ -67,24 +71,26 @@ function updateProgressBar() {
 }
 
 // =============================================
-// ANSWER SELECTION
+// ANSWER SELECTION — CLEANING FLOW
 // =============================================
 
 function selectAnswer(questionKey, value, buttonElement) {
-    // Store the answer
     answers[questionKey] = value;
 
-    // Remove "selected" class from all buttons in this question
     var parentGrid = buttonElement.closest(".options-grid");
     var allButtons = parentGrid.querySelectorAll(".btn-option");
     allButtons.forEach(function(btn) {
         btn.classList.remove("selected");
     });
 
-    // Add "selected" class to the clicked button
     buttonElement.classList.add("selected");
 
-    // Figure out which question this is and show the Next button
+    // If user selected Organization on service type question
+    // redirect them to the org flow after area is collected
+    if (questionKey === "serviceType" && value === "Organization") {
+        orgAnswers.area = answers.area;
+    }
+
     var questionNumber = getQuestionNumber(questionKey);
     var nextButton = document.getElementById("next-" + questionNumber);
     if (nextButton) {
@@ -105,16 +111,235 @@ function getQuestionNumber(questionKey) {
 }
 
 // =============================================
-// PRICING LOGIC
-// Based on Niagara Region market rates
+// SERVICE TYPE ROUTING
+// Called by the Next button on screen-q2
+// Sends org users to org flow, others continue
+// =============================================
+
+function routeAfterServiceType() {
+    if (answers.serviceType === "Organization") {
+        orgAnswers.area = answers.area;
+        goToScreen("screen-org-spaces", 3);
+    } else {
+        goToScreen("screen-q3", 3);
+    }
+}
+
+// =============================================
+// ORGANIZATION FLOW — SPACE SELECTION
+// =============================================
+
+function validateSpaces() {
+    var checked = document.querySelectorAll('input[name="spaces"]:checked');
+
+    if (checked.length === 0) {
+        document.getElementById("spaces-error").style.display = "block";
+        return;
+    }
+
+    document.getElementById("spaces-error").style.display = "none";
+
+    // Collect selected spaces
+    orgAnswers.spaces = Array.from(checked).map(function(cb) {
+        return cb.value;
+    });
+
+    // Handle "Other" text field
+    var otherText = document.getElementById("other-text").value.trim();
+    if (otherText && orgAnswers.spaces.includes("Other")) {
+        var idx = orgAnswers.spaces.indexOf("Other");
+        orgAnswers.spaces[idx] = "Other: " + otherText;
+    }
+
+    orgAnswers.spaceCount = orgAnswers.spaces.length;
+
+    goToScreen("screen-org-condition", 4);
+}
+
+// =============================================
+// ORGANIZATION FLOW — CONDITION SELECTION
+// =============================================
+
+function validateOrgCondition() {
+    var selected = document.querySelector('input[name="org-condition"]:checked');
+
+    if (!selected) {
+        alert("Please select a condition to continue.");
+        return;
+    }
+
+    orgAnswers.condition = selected.value;
+    goToScreen("screen-org-supplies", 5);
+}
+
+// =============================================
+// ORGANIZATION FLOW — SUPPLIES SELECTION
+// =============================================
+
+function validateSupplies() {
+    var selected = document.querySelector('input[name="org-supplies"]:checked');
+
+    if (!selected) {
+        alert("Please make a selection to continue.");
+        return;
+    }
+
+    orgAnswers.supplies = selected.value;
+    goToScreen("screen-org-notes", 6);
+}
+
+// =============================================
+// ORGANIZATION FLOW — NOTES TO PHOTOS
+// =============================================
+
+function goToOrgPhotos() {
+    var notes = document.getElementById("org-notes").value.trim();
+    orgAnswers.extraNotes = notes || "None";
+    goToScreen("screen-org-photos", 7);
+}
+
+// =============================================
+// ORGANIZATION FLOW — PHOTOS TO CONTACT
+// =============================================
+
+function goToOrgContact() {
+    goToScreen("screen-org-contact", 8);
+}
+
+// =============================================
+// PHOTO UPLOAD PREVIEW
+// =============================================
+
+function handlePhotoUpload(input) {
+    var preview = document.getElementById("photo-preview");
+    var countLabel = document.getElementById("photo-count");
+    preview.innerHTML = "";
+
+    var files = Array.from(input.files).slice(0, 5);
+
+    files.forEach(function(file) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var img = document.createElement("img");
+            img.src = e.target.result;
+            img.style.cssText =
+                "width: 80px; height: 80px; object-fit: cover;" +
+                "border-radius: 4px; border: 1px solid #e0e0e0;";
+            preview.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    });
+
+    countLabel.style.display = "block";
+    countLabel.textContent =
+        files.length + " photo" + (files.length > 1 ? "s" : "") + " selected";
+}
+
+// =============================================
+// ORGANIZATION PRICING CALCULATOR
+// =============================================
+
+function calculateOrgPrice(spaceCount) {
+    if (spaceCount === 1) return 75;
+    if (spaceCount === 2) return 130;
+    if (spaceCount === 3) return 180;
+    return null; // 4+ quoted individually
+}
+
+// =============================================
+// ORGANIZATION BREAKDOWN BUILDER
+// =============================================
+
+function buildOrgBreakdown(spaceCount, supplies) {
+    var prices = { 1: 75, 2: 130, 3: 180 };
+    var price = spaceCount >= 4 ? null : prices[spaceCount];
+
+    var breakdown = spaceCount >= 4
+        ? "Spaces: " + spaceCount + " (quoted individually) | Supplies: " + supplies + " | Total: Quoted individually"
+        : "Spaces: " + spaceCount + " x starting rate | Estimated: $" + price + " | Supplies: " + supplies + " | Total: $" + price + " + supplies if applicable";
+
+    return {
+        breakdown: breakdown,
+        total: price ? "$" + price : "Quoted individually"
+    };
+}
+
+// =============================================
+// ORGANIZATION FLOW — SUBMIT
+// =============================================
+
+function submitOrgQuote(event) {
+    event.preventDefault();
+
+    var name  = document.getElementById("org-name").value.trim();
+    var email = document.getElementById("org-email").value.trim();
+    var phone = document.getElementById("org-phone").value.trim();
+    var preferredContact = document.querySelector('input[name="org-contact-method"]:checked');
+
+    if (!name || !email) {
+        document.getElementById("org-contact-error").style.display = "block";
+        return;
+    }
+
+    document.getElementById("org-contact-error").style.display = "none";
+
+    // Disable submit button
+    var submitBtn = document.getElementById("orgSubmitBtn");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Sending...";
+
+    // Show loading overlay
+    var loadingOverlay = document.getElementById("loadingOverlay");
+    loadingOverlay.classList.remove("hidden");
+
+    // Build breakdown and price
+    var orgBreakdown = buildOrgBreakdown(orgAnswers.spaceCount, orgAnswers.supplies);
+
+    var data = {
+        name:             name,
+        email:            email,
+        phone:            phone || "Not provided",
+        area:             orgAnswers.area,
+        serviceType:      "Organization",
+        spaces:           orgAnswers.spaces.join(", "),
+        spaceCount:       orgAnswers.spaceCount,
+        condition:        orgAnswers.condition,
+        supplies:         orgAnswers.supplies,
+        extraNotes:       orgAnswers.extraNotes || "None",
+        quoteBreakdown:   orgBreakdown.breakdown,
+        estimatedQuote:   orgBreakdown.total + " (internal estimate — not shown to client)",
+        preferredContact: preferredContact ? preferredContact.value : "Not specified"
+    };
+
+    fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(data)
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(result) {
+        console.log("Success:", result);
+        goToScreen("screen-org-confirmation", 10);
+    })
+    .catch(function(error) {
+        console.error("Error:", error);
+        // Still show confirmation even if sheet write fails
+        goToScreen("screen-org-confirmation", 10);
+    })
+    .finally(function() {
+        loadingOverlay.classList.add("hidden");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Send My Quote Request →";
+    });
+}
+
+// =============================================
+// CLEANING PRICING LOGIC
 // =============================================
 
 function calculateQuote() {
 
-    // -----------------------------------------
-    // STEP 1: Base price by number of bedrooms
-    // (for a Standard Clean)
-    // -----------------------------------------
     var basePrices = {
         "1": 120,
         "2": 145,
@@ -125,9 +350,6 @@ function calculateQuote() {
 
     var basePrice = basePrices[answers.bedrooms] || 180;
 
-    // -----------------------------------------
-    // STEP 2: Add cost per bathroom
-    // -----------------------------------------
     var bathroomPrices = {
         "1": 0,
         "2": 25,
@@ -138,24 +360,16 @@ function calculateQuote() {
     var bathroomAddon = bathroomPrices[answers.bathrooms] || 25;
     basePrice = basePrice + bathroomAddon;
 
-    // -----------------------------------------
-    // STEP 3: Multiply by service type
-    // Deep Clean and Move-Out cost more
-    // -----------------------------------------
-        var serviceMultipliers = {
+    var serviceMultipliers = {
         "Standard Clean": 1.0,
         "Deep Clean": 1.5,
         "Move-In / Move-Out": 1.7,
-        "Organization": 1.3,
         "Not Sure": 1.0
     };
 
     var serviceMultiplier = serviceMultipliers[answers.serviceType] || 1.0;
     basePrice = basePrice * serviceMultiplier;
 
-    // -----------------------------------------
-    // STEP 4: Adjust for home condition
-    // -----------------------------------------
     var conditionMultipliers = {
         "Well Maintained": 1.0,
         "Average": 1.15,
@@ -165,9 +379,6 @@ function calculateQuote() {
     var conditionMultiplier = conditionMultipliers[answers.condition] || 1.0;
     basePrice = basePrice * conditionMultiplier;
 
-    // -----------------------------------------
-    // STEP 5: Apply recurring discount
-    // -----------------------------------------
     var frequencyDiscounts = {
         "One-Time": 0,
         "Weekly": 0.20,
@@ -180,12 +391,8 @@ function calculateQuote() {
     var discountAmount = basePrice * discount;
     basePrice = basePrice - discountAmount;
 
-    // -----------------------------------------
-    // STEP 6: Round to nearest $5 for clean look
-    // -----------------------------------------
     var finalQuote = Math.round(basePrice / 5) * 5;
 
-    // Make sure the minimum quote is reasonable
     if (finalQuote < 100) {
         finalQuote = 100;
     }
@@ -194,14 +401,11 @@ function calculateQuote() {
 }
 
 // =============================================
-// QUOTE BREAKDOWN
-// Returns a readable text breakdown of how
-// the quote was calculated
+// CLEANING QUOTE BREAKDOWN
 // =============================================
 
 function getQuoteBreakdown() {
 
-    // Base prices by bedroom
     var basePrices = {
         "1": 120,
         "2": 145,
@@ -210,7 +414,6 @@ function getQuoteBreakdown() {
         "5+": 280
     };
 
-    // Bathroom add-ons
     var bathroomPrices = {
         "1": 0,
         "2": 25,
@@ -218,23 +421,19 @@ function getQuoteBreakdown() {
         "4+": 80
     };
 
-    // Service multipliers
-        var serviceMultipliers = {
+    var serviceMultipliers = {
         "Standard Clean": 1.0,
         "Deep Clean": 1.5,
         "Move-In / Move-Out": 1.7,
-        "Organization": 1.3,
         "Not Sure": 1.0
     };
 
-    // Condition multipliers
     var conditionMultipliers = {
         "Well Maintained": 1.0,
         "Average": 1.15,
         "Needs Work": 1.35
     };
 
-    // Frequency discounts
     var frequencyDiscounts = {
         "One-Time": 0,
         "Weekly": 0.20,
@@ -243,7 +442,6 @@ function getQuoteBreakdown() {
         "Not Sure": 0
     };
 
-    // Calculate each step
     var basePrice = basePrices[answers.bedrooms] || 180;
     var bathroomAddon = bathroomPrices[answers.bathrooms] || 25;
     var subtotal = basePrice + bathroomAddon;
@@ -260,7 +458,6 @@ function getQuoteBreakdown() {
 
     var finalQuote = Math.round(afterDiscount / 5) * 5;
 
-    // Build the readable breakdown text
     var breakdown =
         "Base (" + answers.bedrooms + " bed): $" + basePrice +
         " | Bathrooms (" + answers.bathrooms + "): +$" + bathroomAddon +
@@ -272,59 +469,50 @@ function getQuoteBreakdown() {
 
     return breakdown;
 }
+
 // =============================================
-// FORM SUBMISSION
+// CLEANING FLOW — SUBMIT
 // =============================================
 
 function submitQuote(event) {
-    // Prevent the form from refreshing the page
     event.preventDefault();
 
-        // Get the contact info from the form
     var name = document.getElementById("name").value.trim();
     var email = document.getElementById("email").value.trim();
     var phone = document.getElementById("phone").value.trim();
-
-    // Get the extra notes (optional field)
     var extraNotes = document.getElementById("extraNotes").value.trim();
     answers.extraNotes = extraNotes || "None";
 
-    // Basic validation
     if (!name || !email || !phone) {
         alert("Please fill in all fields.");
         return;
     }
 
-    // Disable the submit button to prevent double submissions
     var submitBtn = document.getElementById("submitBtn");
     submitBtn.disabled = true;
     submitBtn.textContent = "Sending...";
 
-    // Show loading overlay
     var loadingOverlay = document.getElementById("loadingOverlay");
     loadingOverlay.classList.remove("hidden");
 
-        // Calculate the quote (for your eyes only — not shown to customer)
     var estimatedQuote = calculateQuote();
     var quoteBreakdown = getQuoteBreakdown();
 
-    // Build the data object to send to Google Sheets
-        var data = {
-        name: name,
-        email: email,
-        phone: phone,
-        area: answers.area,
-        serviceType: answers.serviceType,
-        bedrooms: answers.bedrooms,
-        bathrooms: answers.bathrooms,
-        condition: answers.condition,
-        frequency: answers.frequency,
-        extraNotes: answers.extraNotes,
+    var data = {
+        name:           name,
+        email:          email,
+        phone:          phone,
+        area:           answers.area,
+        serviceType:    answers.serviceType,
+        bedrooms:       answers.bedrooms,
+        bathrooms:      answers.bathrooms,
+        condition:      answers.condition,
+        frequency:      answers.frequency,
+        extraNotes:     answers.extraNotes,
         quoteBreakdown: quoteBreakdown,
         estimatedQuote: "$" + estimatedQuote + " (internal estimate — not shown to client)"
     };
 
-    // Send data to Google Sheets
     fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
         body: JSON.stringify(data)
@@ -338,25 +526,20 @@ function submitQuote(event) {
     })
     .catch(function(error) {
         console.error("Error:", error);
-        // Still show results even if the sheet write fails
-        // You don't want the customer to see an error
         showResults(estimatedQuote);
     })
     .finally(function() {
-        // Hide loading overlay
         loadingOverlay.classList.add("hidden");
-        // Re-enable the button (just in case)
         submitBtn.disabled = false;
         submitBtn.textContent = "Get My Estimate →";
     });
 }
 
 // =============================================
-// SHOW RESULTS
+// CLEANING FLOW — SHOW RESULTS
 // =============================================
 
 function showResults(quote) {
-    // Build the summary (no price shown to customer)
     var summaryEl = document.getElementById("quoteSummary");
 
     summaryEl.innerHTML =
@@ -367,7 +550,6 @@ function showResults(quote) {
         "<p><span>Frequency</span><span>" + answers.frequency + "</span></p>" +
         "<p><span>Area</span><span>" + answers.area + "</span></p>";
 
-    // Navigate to thank you screen
     goToScreen("screen-results", 8);
 }
 
