@@ -335,20 +335,25 @@ function submitOrgQuote(event) {
 }
 
 // =============================================
-// CLEANING PRICING LOGIC
+// CLEANING PRICING LOGIC - UPDATED
 // =============================================
 
-function calculateQuote() {
+function calculateQuote(applyCondition) {
+    // applyCondition defaults to true for backward compatibility
+    if (applyCondition === undefined) {
+        applyCondition = true;
+    }
 
+    // UPDATED: Lower base prices for customer acquisition
     var basePrices = {
-        "1": 120,
-        "2": 145,
-        "3": 180,
-        "4": 230,
-        "5+": 280
+        "1": 100,
+        "2": 125,
+        "3": 155,
+        "4": 195,
+        "5+": 240
     };
 
-    var basePrice = basePrices[answers.bedrooms] || 180;
+    var basePrice = basePrices[answers.bedrooms] || 155;
 
     var bathroomPrices = {
         "1": 0,
@@ -370,14 +375,17 @@ function calculateQuote() {
     var serviceMultiplier = serviceMultipliers[answers.serviceType] || 1.0;
     basePrice = basePrice * serviceMultiplier;
 
+    // UPDATED: Adjusted condition multipliers (only applied if applyCondition is true)
     var conditionMultipliers = {
         "Well Maintained": 1.0,
-        "Average": 1.15,
-        "Needs Work": 1.35
+        "Average": 1.12,
+        "Needs Work": 1.27
     };
 
-    var conditionMultiplier = conditionMultipliers[answers.condition] || 1.0;
-    basePrice = basePrice * conditionMultiplier;
+    if (applyCondition) {
+        var conditionMultiplier = conditionMultipliers[answers.condition] || 1.0;
+        basePrice = basePrice * conditionMultiplier;
+    }
 
     var frequencyDiscounts = {
         "One-Time": 0,
@@ -393,25 +401,28 @@ function calculateQuote() {
 
     var finalQuote = Math.round(basePrice / 5) * 5;
 
-    if (finalQuote < 100) {
-        finalQuote = 100;
+    // UPDATED: Different minimums for one-time vs recurring
+    var minimumPrice = (answers.frequency === "One-Time" || answers.frequency === "Not Sure") ? 175 : 100;
+    
+    if (finalQuote < minimumPrice) {
+        finalQuote = minimumPrice;
     }
 
     return finalQuote;
 }
 
 // =============================================
-// CLEANING QUOTE BREAKDOWN
+// CLEANING QUOTE BREAKDOWN - UPDATED
 // =============================================
 
 function getQuoteBreakdown() {
 
     var basePrices = {
-        "1": 120,
-        "2": 145,
-        "3": 180,
-        "4": 230,
-        "5+": 280
+        "1": 100,
+        "2": 125,
+        "3": 155,
+        "4": 195,
+        "5+": 240
     };
 
     var bathroomPrices = {
@@ -430,8 +441,8 @@ function getQuoteBreakdown() {
 
     var conditionMultipliers = {
         "Well Maintained": 1.0,
-        "Average": 1.15,
-        "Needs Work": 1.35
+        "Average": 1.12,
+        "Needs Work": 1.27
     };
 
     var frequencyDiscounts = {
@@ -442,15 +453,18 @@ function getQuoteBreakdown() {
         "Not Sure": 0
     };
 
-    var basePrice = basePrices[answers.bedrooms] || 180;
+    var basePrice = basePrices[answers.bedrooms] || 155;
     var bathroomAddon = bathroomPrices[answers.bathrooms] || 25;
     var subtotal = basePrice + bathroomAddon;
 
     var serviceMultiplier = serviceMultipliers[answers.serviceType] || 1.0;
     var afterService = subtotal * serviceMultiplier;
 
+    // UPDATED: Condition only applied for one-time or not-sure bookings
+    var isRecurring = (answers.frequency !== "One-Time" && answers.frequency !== "Not Sure");
     var conditionMultiplier = conditionMultipliers[answers.condition] || 1.0;
-    var afterCondition = afterService * conditionMultiplier;
+    
+    var afterCondition = isRecurring ? afterService : (afterService * conditionMultiplier);
 
     var discount = frequencyDiscounts[answers.frequency] || 0;
     var discountAmount = afterCondition * discount;
@@ -458,16 +472,48 @@ function getQuoteBreakdown() {
 
     var finalQuote = Math.round(afterDiscount / 5) * 5;
 
+    // Apply minimum pricing
+    var minimumPrice = (answers.frequency === "One-Time" || answers.frequency === "Not Sure") ? 175 : 100;
+    if (finalQuote < minimumPrice) {
+        finalQuote = minimumPrice;
+    }
+
+    var conditionNote = isRecurring 
+        ? " (first visit only)" 
+        : "";
+
     var breakdown =
         "Base (" + answers.bedrooms + " bed): $" + basePrice +
         " | Bathrooms (" + answers.bathrooms + "): +$" + bathroomAddon +
         " | Subtotal: $" + subtotal +
         " | " + answers.serviceType + " x" + serviceMultiplier + ": $" + Math.round(afterService) +
-        " | " + answers.condition + " x" + conditionMultiplier + ": $" + Math.round(afterCondition) +
+        " | " + answers.condition + " x" + conditionMultiplier + conditionNote + ": $" + Math.round(afterCondition) +
         " | " + answers.frequency + " -" + (discount * 100) + "%: -$" + Math.round(discountAmount) +
         " | TOTAL: $" + finalQuote;
 
     return breakdown;
+}
+
+// =============================================
+// HELPER: Get both first & recurring prices
+// =============================================
+
+function getBothPrices() {
+    var isRecurring = (answers.frequency !== "One-Time" && answers.frequency !== "Not Sure");
+    
+    if (!isRecurring) {
+        // One-time booking — only one price
+        return {
+            firstVisit: calculateQuote(true),
+            recurring: null
+        };
+    } else {
+        // Recurring booking — show both
+        return {
+            firstVisit: calculateQuote(true),   // with condition markup
+            recurring: calculateQuote(false)    // without condition markup
+        };
+    }
 }
 
 // =============================================
@@ -495,8 +541,11 @@ function submitQuote(event) {
     var loadingOverlay = document.getElementById("loadingOverlay");
     loadingOverlay.classList.remove("hidden");
 
-    var estimatedQuote = calculateQuote();
+    var prices = getBothPrices();
     var quoteBreakdown = getQuoteBreakdown();
+
+    // For Google Sheets, send the first visit price (or only price for one-time)
+    var quoteToSend = prices.firstVisit;
 
     var data = {
         name:           name,
@@ -510,7 +559,7 @@ function submitQuote(event) {
         frequency:      answers.frequency,
         extraNotes:     answers.extraNotes,
         quoteBreakdown: quoteBreakdown,
-        estimatedQuote: "$" + estimatedQuote.toString() 
+        estimatedQuote: "$" + quoteToSend.toString() 
     };
 
     fetch(GOOGLE_SCRIPT_URL, {
@@ -522,11 +571,11 @@ function submitQuote(event) {
     })
     .then(function(result) {
         console.log("Success:", result);
-        showResults(estimatedQuote);
+        showResults(prices);
     })
     .catch(function(error) {
         console.error("Error:", error);
-        showResults(estimatedQuote);
+        showResults(prices);
     })
     .finally(function() {
         loadingOverlay.classList.add("hidden");
@@ -536,10 +585,10 @@ function submitQuote(event) {
 }
 
 // =============================================
-// CLEANING FLOW — SHOW RESULTS
+// CLEANING FLOW — SHOW RESULTS - UPDATED
 // =============================================
 
-function showResults(quote) {
+function showResults(prices) {
     var summaryEl = document.getElementById("quoteSummary");
 
     summaryEl.innerHTML =
@@ -549,6 +598,33 @@ function showResults(quote) {
         "<p><span>Condition</span><span>" + answers.condition + "</span></p>" +
         "<p><span>Frequency</span><span>" + answers.frequency + "</span></p>" +
         "<p><span>Area</span><span>" + answers.area + "</span></p>";
+
+    // Display pricing based on whether it's recurring
+    var pricingDisplayEl = document.getElementById("pricingDisplay");
+    
+    if (prices.recurring !== null) {
+        // Recurring service — show both prices
+        var savings = prices.firstVisit - prices.recurring;
+        pricingDisplayEl.innerHTML = 
+            '<div class="price-card">' +
+            '<h3>First Deep Clean</h3>' +
+            '<div class="price">$' + prices.firstVisit + '</div>' +
+            '<p class="price-note">Initial visit includes condition assessment</p>' +
+            '</div>' +
+            '<div class="price-card highlight">' +
+            '<h3>Then ' + answers.frequency + '</h3>' +
+            '<div class="price">$' + prices.recurring + '</div>' +
+            '<p class="price-note">Save $' + savings + ' on every visit after!</p>' +
+            '</div>';
+    } else {
+        // One-time service — show single price
+        pricingDisplayEl.innerHTML = 
+            '<div class="price-card">' +
+            '<h3>Your Estimate</h3>' +
+            '<div class="price">$' + prices.firstVisit + '</div>' +
+            '<p class="price-note">One-time service</p>' +
+            '</div>';
+    }
 
     goToScreen("screen-results", 8);
 }
