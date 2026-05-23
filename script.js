@@ -588,7 +588,13 @@ function submitQuote(event) {
 // =============================================
 
 function showResults(prices) {
+    console.log("showResults called with prices:", prices);
+    
     var summaryEl = document.getElementById("quoteSummary");
+    if (!summaryEl) {
+        console.error("quoteSummary element not found!");
+        return;
+    }
 
     summaryEl.innerHTML =
         "<p><span>Service</span><span>" + answers.serviceType + "</span></p>" +
@@ -598,34 +604,15 @@ function showResults(prices) {
         "<p><span>Frequency</span><span>" + answers.frequency + "</span></p>" +
         "<p><span>Area</span><span>" + answers.area + "</span></p>";
 
-    // Display pricing based on whether it's recurring
+    // ✅ DON'T display pricing — just clear it
     var pricingDisplayEl = document.getElementById("pricingDisplay");
-    
-    if (prices.recurring !== null) {
-        // Recurring service — show both prices
-        var savings = prices.firstVisit - prices.recurring;
-        pricingDisplayEl.innerHTML = 
-            '<div class="price-card">' +
-            '<h3>First Deep Clean</h3>' +
-            '<div class="price">$' + prices.firstVisit + '</div>' +
-            '<p class="price-note">Initial visit includes condition assessment</p>' +
-            '</div>' +
-            '<div class="price-card highlight">' +
-            '<h3>Then ' + answers.frequency + '</h3>' +
-            '<div class="price">$' + prices.recurring + '</div>' +
-            '<p class="price-note">Save $' + savings + ' on every visit after!</p>' +
-            '</div>';
-    } else {
-        // One-time service — show single price
-        pricingDisplayEl.innerHTML = 
-            '<div class="price-card">' +
-            '<h3>Your Estimate</h3>' +
-            '<div class="price">$' + prices.firstVisit + '</div>' +
-            '<p class="price-note">One-time service</p>' +
-            '</div>';
+    if (pricingDisplayEl) {
+        pricingDisplayEl.innerHTML = ""; // Empty, don't show prices
     }
 
+    console.log("About to navigate to screen-results");
     goToScreen("screen-results", 8);
+    console.log("Navigation complete");
 }
 
 // =============================================
