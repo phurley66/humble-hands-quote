@@ -271,6 +271,10 @@ function buildOrgBreakdown(spaceCount, supplies) {
 function submitOrgQuote(event) {
     event.preventDefault();
 
+    // ✅ Block if already submitting
+    var submitBtn = document.getElementById("orgSubmitBtn");
+    if (submitBtn.disabled) return;
+
     var name  = document.getElementById("org-name").value.trim();
     var email = document.getElementById("org-email").value.trim();
     var phone = document.getElementById("org-phone").value.trim();
@@ -283,12 +287,10 @@ function submitOrgQuote(event) {
 
     document.getElementById("org-contact-error").style.display = "none";
 
-    // Disable submit button
-    var submitBtn = document.getElementById("orgSubmitBtn");
+    // ✅ Disable button and show loading BEFORE fetch
     submitBtn.disabled = true;
     submitBtn.textContent = "Sending...";
 
-    // Show loading overlay
     var loadingOverlay = document.getElementById("loadingOverlay");
     loadingOverlay.classList.remove("hidden");
 
@@ -307,7 +309,7 @@ function submitOrgQuote(event) {
         supplies:         orgAnswers.supplies,
         extraNotes:       orgAnswers.extraNotes || "None",
         quoteBreakdown:   orgBreakdown.breakdown,
-        estimatedQuote: String(orgBreakdown.total).startsWith("$") ? orgBreakdown.total : "$" + orgBreakdown.total,
+        estimatedQuote:   String(orgBreakdown.total).startsWith("$") ? orgBreakdown.total : "$" + orgBreakdown.total,
         preferredContact: preferredContact ? preferredContact.value : "Not specified"
     };
 
@@ -320,17 +322,13 @@ function submitOrgQuote(event) {
     })
     .then(function(result) {
         console.log("Success:", result);
+        loadingOverlay.classList.add("hidden");
         goToScreen("screen-org-confirmation", 10);
     })
     .catch(function(error) {
         console.error("Error:", error);
-        // Still show confirmation even if sheet write fails
-        goToScreen("screen-org-confirmation", 10);
-    })
-    .finally(function() {
         loadingOverlay.classList.add("hidden");
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Send My Quote Request →";
+        goToScreen("screen-org-confirmation", 10);
     });
 }
 
@@ -523,6 +521,10 @@ function getBothPrices() {
 function submitQuote(event) {
     event.preventDefault();
 
+    // ✅ Block if already submitting
+    var submitBtn = document.getElementById("submitBtn");
+    if (submitBtn.disabled) return;
+
     var name = document.getElementById("name").value.trim();
     var email = document.getElementById("email").value.trim();
     var phone = document.getElementById("phone").value.trim();
@@ -534,7 +536,7 @@ function submitQuote(event) {
         return;
     }
 
-    var submitBtn = document.getElementById("submitBtn");
+    // ✅ Disable button and show loading BEFORE fetch
     submitBtn.disabled = true;
     submitBtn.textContent = "Sending...";
 
@@ -571,21 +573,18 @@ function submitQuote(event) {
     })
     .then(function(result) {
         console.log("Success:", result);
+        loadingOverlay.classList.add("hidden");
         showResults(prices);
     })
     .catch(function(error) {
         console.error("Error:", error);
-        showResults(prices);
-    })
-    .finally(function() {
         loadingOverlay.classList.add("hidden");
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Get My Estimate →";
+        showResults(prices);
     });
 }
 
 // =============================================
-// CLEANING FLOW — SHOW RESULTS - UPDATED
+// CLEANING FLOW — SHOW RESULTS
 // =============================================
 
 function showResults(prices) {
