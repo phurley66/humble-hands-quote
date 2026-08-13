@@ -333,165 +333,246 @@ function submitOrgQuote(event) {
 }
 
 // =============================================
-// CLEANING PRICING LOGIC - UPDATED
+// CLEANING PRICING LOGIC - CORRECTED
 // =============================================
 
 function calculateQuote(applyCondition) {
-    // applyCondition defaults to true for backward compatibility
-    if (applyCondition === undefined) {
-        applyCondition = true;
-    }
+  // applyCondition defaults to true for backward compatibility
+  if (applyCondition === undefined) {
+    applyCondition = true;
+  }
 
-    // UPDATED: Lower base prices for customer acquisition
-    var basePrices = {
-        "1": 100,
-        "2": 125,
-        "3": 155,
-        "4": 195,
-        "5+": 240
-    };
+  var basePrices = {
+    "1": 100,
+    "2": 125,
+    "3": 155,
+    "4": 195,
+    "5+": 240
+  };
 
-    var basePrice = basePrices[answers.bedrooms] || 155;
+  var bathroomPrices = {
+    "1": 0,
+    "2": 25,
+    "3": 50,
+    "4+": 80
+  };
 
-    var bathroomPrices = {
-        "1": 0,
-        "2": 25,
-        "3": 50,
-        "4+": 80
-    };
+  var serviceMultipliers = {
+    "Standard Clean": 1.0,
+    "Deep Clean": 1.5,
+    "Move-In / Move-Out": 1.7,
+    "Not Sure": 1.0
+  };
 
-    var bathroomAddon = bathroomPrices[answers.bathrooms] || 25;
-    basePrice = basePrice + bathroomAddon;
+  var conditionMultipliers = {
+    "Well Maintained": 1.0,
+    "Average": 1.12,
+    "Needs Work": 1.27
+  };
 
-    var serviceMultipliers = {
-        "Standard Clean": 1.0,
-        "Deep Clean": 1.5,
-        "Move-In / Move-Out": 1.7,
-        "Not Sure": 1.0
-    };
+  var frequencyDiscounts = {
+    "One-Time": 0,
+    "Weekly": 0.20,
+    "Bi-Weekly": 0.15,
+    "Monthly": 0.10,
+    "Not Sure": 0
+  };
 
-    var serviceMultiplier = serviceMultipliers[answers.serviceType] || 1.0;
-    basePrice = basePrice * serviceMultiplier;
+  // Calculate base price
+  var basePrice = basePrices[answers.bedrooms] || 155;
+  var bathroomAddon = bathroomPrices[answers.bathrooms] || 25;
+  var subtotal = basePrice + bathroomAddon;
 
-    // UPDATED: Adjusted condition multipliers (only applied if applyCondition is true)
-    var conditionMultipliers = {
-        "Well Maintained": 1.0,
-        "Average": 1.12,
-        "Needs Work": 1.27
-    };
+  // Apply service multiplier
+  var serviceMultiplier = serviceMultipliers[answers.serviceType] || 1.0;
+  var afterService = subtotal * serviceMultiplier;
 
-    if (applyCondition) {
-        var conditionMultiplier = conditionMultipliers[answers.condition] || 1.0;
-        basePrice = basePrice * conditionMultiplier;
-    }
+  // Apply condition multiplier (if applyCondition is true)
+  var afterCondition = afterService;
+  if (applyCondition) {
+    var conditionMultiplier = conditionMultipliers[answers.condition] || 1.0;
+    afterCondition = afterService * conditionMultiplier;
+  }
 
-    var frequencyDiscounts = {
-        "One-Time": 0,
-        "Weekly": 0.20,
-        "Bi-Weekly": 0.15,
-        "Monthly": 0.10,
-        "Not Sure": 0
-    };
+  // Apply frequency discount
+  var discount = frequencyDiscounts[answers.frequency] || 0;
+  var discountAmount = afterCondition * discount;
+  var afterDiscount = afterCondition - discountAmount;
 
-    var discount = frequencyDiscounts[answers.frequency] || 0;
-    var discountAmount = basePrice * discount;
-    basePrice = basePrice - discountAmount;
+  // Round to nearest $5
+  var finalQuote = Math.round(afterDiscount / 5) * 5;
 
-    var finalQuote = Math.round(basePrice / 5) * 5;
+  // Apply minimum pricing
+  var minimumPrice = (answers.frequency === "One-Time" || answers.frequency === "Not Sure") ? 175 : 100;
+  if (finalQuote < minimumPrice) {
+    finalQuote = minimumPrice;
+  }
 
-    // UPDATED: Different minimums for one-time vs recurring
-    var minimumPrice = (answers.frequency === "One-Time" || answers.frequency === "Not Sure") ? 175 : 100;
-    
-    if (finalQuote < minimumPrice) {
-        finalQuote = minimumPrice;
-    }
-
-    return finalQuote;
+  return finalQuote;
 }
 
 // =============================================
-// CLEANING QUOTE BREAKDOWN - UPDATED
+// CLEANING QUOTE BREAKDOWN - CORRECTED
 // =============================================
 
 function getQuoteBreakdown() {
+  var basePrices = {
+    "1": 100,
+    "2": 125,
+    "3": 155,
+    "4": 195,
+    "5+": 240
+  };
 
-    var basePrices = {
-        "1": 100,
-        "2": 125,
-        "3": 155,
-        "4": 195,
-        "5+": 240
-    };
+  var bathroomPrices = {
+    "1": 0,
+    "2": 25,
+    "3": 50,
+    "4+": 80
+  };
 
-    var bathroomPrices = {
-        "1": 0,
-        "2": 25,
-        "3": 50,
-        "4+": 80
-    };
+  var serviceMultipliers = {
+    "Standard Clean": 1.0,
+    "Deep Clean": 1.5,
+    "Move-In / Move-Out": 1.7,
+    "Not Sure": 1.0
+  };
 
-    var serviceMultipliers = {
-        "Standard Clean": 1.0,
-        "Deep Clean": 1.5,
-        "Move-In / Move-Out": 1.7,
-        "Not Sure": 1.0
-    };
+  var conditionMultipliers = {
+    "Well Maintained": 1.0,
+    "Average": 1.12,
+    "Needs Work": 1.27
+  };
 
-    var conditionMultipliers = {
-        "Well Maintained": 1.0,
-        "Average": 1.12,
-        "Needs Work": 1.27
-    };
+  var frequencyDiscounts = {
+    "One-Time": 0,
+    "Weekly": 0.20,
+    "Bi-Weekly": 0.15,
+    "Monthly": 0.10,
+    "Not Sure": 0
+  };
 
-    var frequencyDiscounts = {
-        "One-Time": 0,
-        "Weekly": 0.20,
-        "Bi-Weekly": 0.15,
-        "Monthly": 0.10,
-        "Not Sure": 0
-    };
+  // Calculate base price
+  var basePrice = basePrices[answers.bedrooms] || 155;
+  var bathroomAddon = bathroomPrices[answers.bathrooms] || 25;
+  var subtotal = basePrice + bathroomAddon;
 
-    var basePrice = basePrices[answers.bedrooms] || 155;
-    var bathroomAddon = bathroomPrices[answers.bathrooms] || 25;
-    var subtotal = basePrice + bathroomAddon;
+  // Apply service multiplier
+  var serviceMultiplier = serviceMultipliers[answers.serviceType] || 1.0;
+  var afterService = subtotal * serviceMultiplier;
 
-    var serviceMultiplier = serviceMultipliers[answers.serviceType] || 1.0;
-    var afterService = subtotal * serviceMultiplier;
+  // ✅ FIXED: Always apply condition multiplier
+  var conditionMultiplier = conditionMultipliers[answers.condition] || 1.0;
+  var afterCondition = afterService * conditionMultiplier;
 
-    // UPDATED: Condition only applied for one-time or not-sure bookings
-    var isRecurring = (answers.frequency !== "One-Time" && answers.frequency !== "Not Sure");
-    var conditionMultiplier = conditionMultipliers[answers.condition] || 1.0;
-    
-    var afterCondition = isRecurring ? afterService : (afterService * conditionMultiplier);
+  // Apply frequency discount
+  var discount = frequencyDiscounts[answers.frequency] || 0;
+  var discountAmount = afterCondition * discount;
+  var afterDiscount = afterCondition - discountAmount;
 
-    var discount = frequencyDiscounts[answers.frequency] || 0;
-    var discountAmount = afterCondition * discount;
-    var afterDiscount = afterCondition - discountAmount;
+  // Round to nearest $5
+  var finalQuote = Math.round(afterDiscount / 5) * 5;
 
-    var finalQuote = Math.round(afterDiscount / 5) * 5;
+  // Apply minimum pricing
+  var minimumPrice = (answers.frequency === "One-Time" || answers.frequency === "Not Sure") ? 175 : 100;
+  if (finalQuote < minimumPrice) {
+    finalQuote = minimumPrice;
+  }
 
-    // Apply minimum pricing
-    var minimumPrice = (answers.frequency === "One-Time" || answers.frequency === "Not Sure") ? 175 : 100;
-    if (finalQuote < minimumPrice) {
-        finalQuote = minimumPrice;
-    }
+  // Build breakdown string
+  var breakdown =
+    "Base (" + answers.bedrooms + " bed): $" + basePrice +
+    " | Bathrooms (" + answers.bathrooms + "): +$" + bathroomAddon +
+    " | Subtotal: $" + subtotal +
+    " | " + answers.serviceType + " x" + serviceMultiplier + ": $" + Math.round(afterService) +
+    " | " + answers.condition + " x" + conditionMultiplier + ": $" + Math.round(afterCondition) +
+    " | " + answers.frequency + " -" + (discount * 100) + "%: -$" + Math.round(discountAmount) +
+    " | TOTAL: $" + finalQuote;
 
-    var conditionNote = isRecurring 
-        ? " (first visit only)" 
-        : "";
-
-    var breakdown =
-        "Base (" + answers.bedrooms + " bed): $" + basePrice +
-        " | Bathrooms (" + answers.bathrooms + "): +$" + bathroomAddon +
-        " | Subtotal: $" + subtotal +
-        " | " + answers.serviceType + " x" + serviceMultiplier + ": $" + Math.round(afterService) +
-        " | " + answers.condition + " x" + conditionMultiplier + conditionNote + ": $" + Math.round(afterCondition) +
-        " | " + answers.frequency + " -" + (discount * 100) + "%: -$" + Math.round(discountAmount) +
-        " | TOTAL: $" + finalQuote;
-
-    return breakdown;
+  return breakdown;
 }
 
+// =============================================
+// HELPER: Get both first & recurring prices
+// ✅ CORRECTED LOGIC
+// =============================================
+
+function getBothPrices() {
+  var isRecurring = (answers.frequency !== "One-Time" && answers.frequency !== "Not Sure");
+
+  if (!isRecurring) {
+    // One-time booking — only one price
+    return {
+      firstVisit: calculateQuote(true),
+      recurring: null
+    };
+  }
+
+  // ✅ FIXED: For recurring jobs, calculate both properly
+  var basePrices = {
+    "1": 100,
+    "2": 125,
+    "3": 155,
+    "4": 195,
+    "5+": 240
+  };
+
+  var bathroomPrices = {
+    "1": 0,
+    "2": 25,
+    "3": 50,
+    "4+": 80
+  };
+
+  var serviceMultipliers = {
+    "Standard Clean": 1.0,
+    "Deep Clean": 1.5,
+    "Move-In / Move-Out": 1.7,
+    "Not Sure": 1.0
+  };
+
+  var conditionMultipliers = {
+    "Well Maintained": 1.0,
+    "Average": 1.12,
+    "Needs Work": 1.27
+  };
+
+  var frequencyDiscounts = {
+    "One-Time": 0,
+    "Weekly": 0.20,
+    "Bi-Weekly": 0.15,
+    "Monthly": 0.10,
+    "Not Sure": 0
+  };
+
+  // Base calculations
+  var basePrice = basePrices[answers.bedrooms] || 155;
+  var bathroomAddon = bathroomPrices[answers.bathrooms] || 25;
+  var subtotal = basePrice + bathroomAddon;
+
+  var serviceMultiplier = serviceMultipliers[answers.serviceType] || 1.0;
+  var afterService = subtotal * serviceMultiplier;
+
+  var conditionMultiplier = conditionMultipliers[answers.condition] || 1.0;
+  var afterCondition = afterService * conditionMultiplier;
+
+  var discount = frequencyDiscounts[answers.frequency] || 0;
+
+  // FIRST VISIT: with condition multiplier + discount
+  var firstVisitBeforeRound = afterCondition * (1 - discount);
+  var firstVisit = Math.round(firstVisitBeforeRound / 5) * 5;
+  firstVisit = Math.max(firstVisit, 175);
+
+  // RECURRING: without condition multiplier + discount
+  var recurringBeforeRound = afterService * (1 - discount);
+  var recurring = Math.round(recurringBeforeRound / 5) * 5;
+  recurring = Math.max(recurring, 100);
+
+  return {
+    firstVisit: firstVisit,
+    recurring: recurring
+  };
+}
 // =============================================
 // HELPER: Get both first & recurring prices
 // =============================================
